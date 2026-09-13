@@ -1,0 +1,24 @@
+# 本地环境变量（含 API Key，禁止提交）
+.env
+.env.local
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 虚拟环境
+.venv/
+venv/
+condaenv1/
+
+# 本地数据库文件
+data/*.db
+data/*.db-journal
+
+# 编辑器 / 系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

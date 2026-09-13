@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-title" content="轻记账">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>轻记账</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:#eef0f4;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1f2937;font-size:15px}
+button{font-family:inherit;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#app{max-width:560px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;background:#f7f8fa}
+.app-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 16px 8px;background:#fff;border-bottom:1px solid #f0f1f5}
+.app-title{font-size:19px;font-weight:800;letter-spacing:1px}
+.app-sub{font-size:12px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.view{display:none;padding:14px 14px 24px}
+.view.active{display:block}
+#tabbar{display:flex;background:#fff;border-top:1px solid #ececf1;padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;padding:7px 0 6px;text-align:center;font-size:11px;color:#9ca3af}
+.tab .ico{display:block;font-size:20px;line-height:1.3}
+.tab.active{color:#2563eb}
+
+.seg{display:flex;background:#f1f2f6;border-radius:11px;padding:3px;margin-bottom:14px}
+.seg button{flex:1;border:none;background:transparent;padding:10px 0;border-radius:9px;font-size:15px;color:#6b7280}
+.seg button.active{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.08);color:#111;font-weight:700}
+.field{margin-bottom:14px}
+.field>label{display:block;font-size:13px;color:#6b7280;margin-bottom:6px}
+input[type=date],input[type=text]{width:100%;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;font-size:15px;background:#fff;outline:none}
+input[type=date]:focus,input[type=text]:focus{border-color:#2563eb}
+.amount-wrap{display:flex;align-items:center;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:8px 14px}
+.amount-wrap .cur{font-size:18px;color:#9ca3af;margin-right:8px}
+.amount-wrap input{border:none;outline:none;font-size:28px;font-weight:800;width:100%;background:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;background:#f3f4f6;border-radius:999px;font-size:14px;border:1px solid transparent;color:#374151}
+.chip.active{background:#e8efff;color:#2563eb;border-color:#2563eb;font-weight:600}
+.sub-chips{margin-top:9px}
+.preview{font-size:13px;color:#6b7280;margin:2px 2px 10px;min-height:18px}
+.save-btn{width:100%;padding:14px;background:#2563eb;color:#fff;border:none;border-radius:13px;font-size:16px;font-weight:700}
+.save-btn:active{opacity:.85}
+.cancel-edit{display:block;margin:10px auto 0;border:none;background:none;color:#9ca3af;font-size:13px;padding:6px 12px}
+
+.day-group{margin-bottom:16px}
+.day-head{display:flex;justify-content:space-between;font-size:13px;color:#6b7280;padding:2px 4px 7px}
+.record{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #f0f0f4;border-radius:13px;padding:10px 10px 10px 12px;margin-bottom:8px}
+.record .r-ico{font-size:22px;width:32px;text-align:center}
+.record .r-info{flex:1;min-width:0}
+.r-main{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r-sub{font-size:12px;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.r-amt{font-weight:700;font-size:15px;white-space:nowrap}
+.record.expense .r-amt{color:#ef4444}
+.record.income .r-amt{color:#10b981}
+.r-del{border:none;background:none;color:#d1d5db;font-size:14px;padding:6px 4px 6px 10px}
+.r-del:active{color:#ef4444}
+.empty{text-align:center;color:#9ca3af;padding:48px 16px;font-size:14px}
+
+.range-chips{margin-bottom:12px}
+.range-chips .chip{background:#fff;border:1px solid #e5e7eb}
+.range-chips .chip.active{background:#e8efff;border-color:#2563eb}
+.stat-card{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border-radius:15px;padding:16px 18px;margin-bottom:14px}
+.stat-label{font-size:13px;opacity:.85}
+.stat-total{font-size:27px;font-weight:800;margin-top:4px}
+.stat-emoji{font-size:30px;opacity:.9}
+.chart-box{background:#fff;border-radius:15px;padding:14px;margin-bottom:14px}
+.chart-title{font-size:14px;font-weight:700;margin-bottom:10px}
+#pie-canvas{width:100%;height:220px;display:block}
+#bar-canvas{height:200px;display:block}
+.chart-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.scroll-hint,.drill-hint{font-size:11px;color:#b0b7c3;padding-top:6px;display:none}
+.drill-hint{padding-top:8px;text-align:center}
+.back-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.back-btn{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;color:#2563eb}
+.stat-title{font-size:14px;font-weight:700}
+.lg-row{display:flex;align-items:center;gap:8px;padding:8px 2px;font-size:13px;border-bottom:1px dashed #f0f1f5;cursor:pointer}
+.lg-row:last-child{border-bottom:none}
+.lg-dot{width:10px;height:10px;border-radius:3px;flex:none}
+.lg-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg-val{font-weight:600}
+.lg-pct{color:#9ca3af;width:52px;text-align:right}
+.lg-arrow{color:#c3c8d1;font-size:14px}
+.row-btns{display:flex;gap:10px}
+.ghost-btn{flex:1;padding:12px;border:1px solid #e5e7eb;background:#fff;border-radius:13px;font-size:14px;color:#374151}
+.ghost-btn:active{background:#f3f4f6}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(8px);background:rgba(17,24,39,.88);color:#fff;padding:9px 18px;border-radius:999px;font-size:13px;opacity:0;transition:all .25s;pointer-events:none;z-index:99;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- AI 对话 ---------- */
+main.chat-mode{display:flex;overflow:hidden}
+#view-ai.active{display:flex;flex-direction:column;flex:1;min-height:0;padding:10px 12px 6px}
+.chat-box{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 8px}
+.msg{display:flex;margin-bottom:10px}
+.msg.user{justify-content:flex-end}
+.bubble{max-width:82%;padding:9px 13px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.msg.user .bubble{background:#2563eb;color:#fff;border-bottom-right-radius:5px}
+.msg.ai .bubble{background:#fff;border:1px solid #eef0f4;border-bottom-left-radius:5px}
+.msg.ai .bubble.err{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
+.tool-chip{display:inline-flex;align-items:center;gap:6px;background:#f3f4f6;border:1px solid #e5e7eb;color:#4b5563;border-radius:999px;padding:4px 10px;font-size:12px;margin:0 0 8px}
+.tool-chip .dot{width:6px;height:6px;border-radius:50%;background:#f59e0b;flex:none}
+.tool-chip.done .dot{background:#10b981}
+.tool-chip.fail .dot{background:#ef4444}
+.chat-hints{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;-webkit-overflow-scrolling:touch}
+.chat-hints::-webkit-scrollbar{display:none}
+.chat-hints .chip{white-space:nowrap;background:#fff;border:1px solid #e5e7eb}
+.chat-input{display:flex;gap:8px;align-items:center;padding-bottom:env(safe-area-inset-bottom)}
+.chat-input input{flex:1;padding:12px 14px;border:1px solid #e5e7eb;border-radius:13px;font-size:15px;outline:none;background:#fff}
+.chat-input input:focus{border-color:#2563eb}
+.send-btn{padding:0 18px;height:45px;background:#2563eb;color:#fff;border:none;border-radius:13px;font-size:15px;font-weight:700}
+.send-btn:disabled{background:#c7d2fe;cursor:default}
+.typing span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:#c3c8d1;animation:blink 1.1s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="app-header">
+    <div class="app-title">轻记账</div>
+    <div class="app-sub" id="app-sub"></div>
+  </header>
+  <main>
+    <section id="view-add" class="view active">
+      <div class="seg" id="seg-type">
+        <button type="button" data-type="expense" class="active">支出</button>
+        <button type="button" data-type="income">收入</button>
+      </div>
+      <div class="field">
+        <label>日期</label>
+        <input type="date" id="f-date">
+      </div>
+      <div class="field">
+        <label>分类</label>
+        <div class="chips" id="cat-main"></div>
+        <div class="chips sub-chips" id="cat-sub" style="display:none"></div>
+      </div>
+      <div class="field">
+        <label>金额</label>
+        <div class="amount-wrap">
+          <span class="cur">¥</span>
+          <input type="number" id="f-amount" inputmode="decimal" step="0.01" min="0" placeholder="0.00">
+        </div>
+      </div>
+      <div class="field">
+        <label>备注</label>
+        <input type="text" id="f-note" maxlength="60" placeholder="备注（可选）">
+      </div>
+      <div class="preview" id="preview"></div>
+      <button class="save-btn" id="btn-save">记一笔</button>
+      <button class="cancel-edit" id="btn-cancel-edit" style="display:none">取消编辑</button>
+    </section>
+
+    <section id="view-list" class="view">
+      <div id="list-box"></div>
+    </section>
+
+    <section id="view-stats" class="view">
+      <div class="seg" id="seg-stat">
+        <button type="button" data-type="expense" class="active">支出</button>
+        <button type="button" data-type="income">收入</button>
+      </div>
+      <div class="chips range-chips" id="range-chips">
+        <button type="button" class="chip" data-range="today">今日</button>
+        <button type="button" class="chip" data-range="week">近7天</button>
+        <button type="button" class="chip active" data-range="month">本月</button>
+        <button type="button" class="chip" data-range="all">全部</button>
+      </div>
+      <div class="stat-card">
+        <div>
+          <div class="stat-label" id="stat-label">本月支出</div>
+          <div class="stat-total" id="stat-total">0.00</div>
+        </div>
+        <div class="stat-emoji" id="stat-emoji">📉</div>
+      </div>
+      <div class="back-row" id="stat-back" style="display:none">
+        <button class="back-btn" id="btn-stat-back">← 返回大类</button>
+        <span class="stat-title" id="stat-title"></span>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title" id="pie-title">分类占比</div>
+        <canvas id="pie-canvas"></canvas>
+        <div id="pie-legend"></div>
+        <div class="drill-hint" id="drill-hint">点击带小类的大类可查看小类统计</div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title" id="bar-title">每日金额</div>
+        <div class="chart-scroll" id="bar-scroll">
+          <canvas id="bar-canvas"></canvas>
+        </div>
+        <div class="scroll-hint" id="bar-hint">← 左右滑动查看更多 →</div>
+      </div>
+      <div class="row-btns">
+        <button class="ghost-btn" id="btn-export">📤 导出备份</button>
+        <button class="ghost-btn" id="btn-import">📥 导入备份</button>
+        <input type="file" id="file-import" accept=".json,application/json" style="display:none">
+      </div>
+    </section>
+
+    <section id="view-ai" class="view">
+      <div class="chat-box" id="chat-box">
+        <div class="msg ai"><div class="bubble">说一句就能记账，比如「今天打车 32 块」。也能问「这个月花了多少」「哪类花得最多」。</div></div>
+      </div>
+      <div class="chat-hints" id="chat-hints">
+        <button type="button" class="chip" data-say="今天打车 32 块">今天打车 32 块</button>
+        <button type="button" class="chip" data-say="中午食堂吃饭 18 块">中午食堂 18 块</button>
+        <button type="button" class="chip" data-say="这个月花了多少？">这个月花了多少？</button>
+        <button type="button" class="chip" data-say="本月哪类花得最多？">哪类花得最多？</button>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chat-text" placeholder="说一句：今天打车 32 块" maxlength="200" autocomplete="off">
+        <button type="button" class="send-btn" id="chat-send">发送</button>
+      </div>
+    </section>
+  </main>
+  <nav id="tabbar">
+    <div class="tab active" data-view="add"><span class="ico">✏️</span>记账</div>
+    <div class="tab" data-view="list"><span class="ico">📋</span>明细</div>
+    <div class="tab" data-view="stats"><span class="ico">📊</span>统计</div>
+    <div class="tab" data-view="ai"><span class="ico">🤖</span>AI</div>
+  </nav>
+</div>
+<div id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORE_KEY = 'qingjizhang_v1';
+  // 由后端托管时用同源；直接双击打开 index.html 时退回本地服务地址
+  var API_BASE = /^https?:/.test(location.protocol) ? '' : 'http://127.0.0.1:8000';
+
+  var CATS = {
+    expense: [
+      { main: '餐饮', icon: '🍜', subs: ['食堂', '小摊', '买菜', '水果', '零食', '奶茶'] },
+      { main: '生活缴费', icon: '🏠', subs: ['房租', '水电', '话费', '地铁'] },
+      { main: '出去玩', icon: '🎒', subs: ['车费', '住宿', '饮食', '门票'] },
+      { main: '学习', icon: '📚', subs: [] },
+      { main: '礼金', icon: '🧧', subs: [] },
+      { main: '日用品及网购', icon: '🛒', subs: [] },
+      { main: '其他', icon: '📦', subs: [] }
+    ],
+    income: [
+      { main: '工资', icon: '💼', subs: [] },
+      { main: '补贴', icon: '💵', subs: [] },
+      { main: '红包', icon: '🧧', subs: [] },
+      { main: '退款', icon: '↩️', subs: [] },
+      { main: '其他', icon: '📦', subs: [] }
+    ]
+  };
+
+  var PALETTE = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1', '#14b8a6', '#a855f7'];
+  var TYPE_LABEL = { expense: '支出', income: '收入' };
+  var RANGE_LABEL = { today: '今日', week: '近7天', month: '本月', all: '全部' };
+
+  var state = {
+    view: 'add',
+    type: 'expense',
+    editingId: null,
+    date: todayStr(),
+    main: '',
+    sub: '',
+    range: 'month',
+    statType: 'expense',
+    statsMain: null
+  };
+
+  var records = load();
+
+  function $(sel) { return document.querySelector(sel); }
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function dateStr(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function todayStr() { return dateStr(new Date()); }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function fmt(n) { return Number(n).toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function round2(n) { return Math.round(n * 100) / 100; }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function findCat(r) {
+    var list = CATS[r.type] || [];
+    for (var i = 0; i < list.length; i++) { if (list[i].main === r.main) return list[i]; }
+    return null;
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+
+  function saveLocal() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(records)); }
+    catch (e) { toast('保存失败：存储空间不足或不可用'); }
+  }
+
+  // ---------- 后端同步 ----------
+  function api(method, path, body) {
+    return fetch(API_BASE + path, {
+      method: method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined
+    }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    });
+  }
+
+  function pushAll(replace) {
+    return api('PUT', '/api/records', { records: records, replace: !!replace }).catch(function () {});
+  }
+
+  function save() {
+    saveLocal();
+    pushAll(false);
+  }
+
+  function rerender() {
+    updateHeader();
+    if (state.view === 'list') renderList();
+    if (state.view === 'stats') renderStats();
+  }
+
+  // 启动时跟后端对齐：库里空就把本地历史灌进去，库里有数据就合并（以库为准）
+  function backendWarn() {
+    var box = $('#chat-box');
+    if (box.querySelector('.backend-warn')) return;
+    var el = document.createElement('div');
+    el.className = 'tool-chip fail backend-warn';
+    el.innerHTML = '<span class="dot"></span><span class="txt"></span>';
+    el.querySelector('.txt').textContent = '连不上后端，先启动服务：.\\condaenv1\\python.exe -m app.main';
+    box.appendChild(el);
+    scrollChat();
+  }
+
+  function backendOk() {
+    var el = $('#chat-box').querySelector('.backend-warn');
+    if (el) el.remove();
+  }
+
+  function syncOnBoot() {
+    api('PUT', '/api/schema', { taxonomy: CATS }).catch(function () {});
+    api('GET', '/api/records').then(function (res) {
+      backendOk();
+      var server = (res && res.records) || [];
+      if (!server.length) {
+        if (records.length) pushAll(true);
+        return;
+      }
+      var byId = {};
+      server.forEach(function (r) { byId[r.id] = r; });
+      var changed = false;
+      records.forEach(function (r) { if (!byId[r.id]) { byId[r.id] = r; changed = true; } });
+      records = Object.keys(byId).map(function (k) { return byId[k]; });
+      saveLocal();
+      rerender();
+      if (changed) pushAll(false);
+    }).catch(function () { backendWarn(); });
+  }
+
+  // AI 改过库之后，把最新记录拉回来刷新页面
+  function refreshRecords() {
+    return api('GET', '/api/records').then(function (res) {
+      if (!res || !res.records) return;
+      records = res.records;
+      saveLocal();
+      rerender();
+    }).catch(function () {});
+  }
+
+  var toastTimer = null;
+  function toast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1600);
+  }
+
+  function updateHeader() {
+    $('#app-sub').textContent = '共 ' + records.length + ' 笔';
+  }
+
+  function setSeg(sel, idx) {
+    var btns = document.querySelectorAll(sel + ' button');
+    for (var i = 0; i < btns.length; i++) { btns[i].classList.toggle('active', i === idx); }
+  }
+
+  // ---------- views ----------
+  function switchView(v) {
+    state.view = v;
+    var views = document.querySelectorAll('.view');
+    for (var i = 0; i < views.length; i++) { views[i].classList.toggle('active', views[i].id === 'view-' + v); }
+    var tabs = document.querySelectorAll('.tab');
+    for (var j = 0; j < tabs.length; j++) { tabs[j].classList.toggle('active', tabs[j].dataset.view === v); }
+    document.querySelector('main').classList.toggle('chat-mode', v === 'ai');
+    if (v === 'add') renderAdd();
+    if (v === 'list') renderList();
+    if (v === 'stats') renderStats();
+    if (v === 'ai') scrollChat();
+    window.scrollTo(0, 0);
+  }
+
+  function renderAdd() {
+    $('#f-date').value = state.date;
+    setSeg('#seg-type', state.type === 'income' ? 1 : 0);
+    renderCats();
+    updatePreview();
+    $('#btn-save').textContent = state.editingId ? '保存修改' : '记一笔';
+    $('#btn-cancel-edit').style.display = state.editingId ? 'inline-block' : 'none';
+  }
+
+  function renderCats() {
+    var cats = CATS[state.type];
+    var mainHtml = cats.map(function (c) {
+      var active = c.main === state.main ? ' active' : '';
+      return '<button type="button" class="chip' + active + '" data-main="' + esc(c.main) + '">' + c.icon + ' ' + esc(c.main) + '</button>';
+    }).join('');
+    $('#cat-main').innerHTML = mainHtml;
+
+    var current = null;
+    for (var i = 0; i < cats.length; i++) { if (cats[i].main === state.main) current = cats[i]; }
+    var subEl = $('#cat-sub');
+    if (current && current.subs.length) {
+      subEl.style.display = '';
+      subEl.innerHTML = current.subs.map(function (s) {
+        var active = s === state.sub ? ' active' : '';
+        return '<button type="button" class="chip' + active + '" data-sub="' + esc(s) + '">' + esc(s) + '</button>';
+      }).join('');
+    } else {
+      subEl.style.display = 'none';
+      subEl.innerHTML = '';
+    }
+  }
+
+  function updatePreview() {
+    var txt = TYPE_LABEL[state.type] + ' · ' + (state.main ? state.main + (state.sub ? ' · ' + state.sub : '') : '请选择分类');
+    $('#preview').textContent = txt;
+  }
+
+  function saveRecord() {
+    var amount = round2(parseFloat($('#f-amount').value));
+    if (!isFinite(amount) || amount <= 0) { toast('请输入正确的金额'); return; }
+    if (!state.main) { toast('请选择分类'); return; }
+    var rec = {
+      id: state.editingId || uid(),
+      type: state.type,
+      date: $('#f-date').value || state.date,
+      main: state.main,
+      sub: state.sub,
+      amount: amount,
+      note: $('#f-note').value.trim().slice(0, 60),
+      ts: Date.now()
+    };
+    if (state.editingId) {
+      var idx = -1;
+      for (var i = 0; i < records.length; i++) { if (records[i].id === state.editingId) { idx = i; break; } }
+      if (idx >= 0) records[idx] = rec;
+      state.editingId = null;
+      save();
+      updateHeader();
+      toast('已修改');
+      switchView('list');
+      return;
+    }
+    records.push(rec);
+    save();
+    updateHeader();
+    $('#f-amount').value = '';
+    $('#f-note').value = '';
+    renderAdd();
+    toast('已保存');
+  }
+
+  function cancelEdit() {
+    state.editingId = null;
+    $('#f-amount').value = '';
+    $('#f-note').value = '';
+    renderAdd();
+  }
+
+  // ---------- list ----------
+  function renderList() {
+    var box = $('#list-box');
+    if (!records.length) {
+      box.innerHTML = '<div class="empty">还没有记录<br>去“记账”页记第一笔吧 ✏️</div>';
+      return;
+    }
+    var sorted = records.slice().sort(function (a, b) {
+      return a.date < b.date ? 1 : (a.date > b.date ? -1 : (b.ts - a.ts));
+    });
+    var groups = {};
+    sorted.forEach(function (r) {
+      if (!groups[r.date]) groups[r.date] = [];
+      groups[r.date].push(r);
+    });
+    var html = '';
+    Object.keys(groups).forEach(function (day) {
+      var list = groups[day];
+      var exp = 0, inc = 0;
+      list.forEach(function (r) { if (r.type === 'expense') exp += r.amount; else inc += r.amount; });
+      var foot = [];
+      if (exp > 0) foot.push('<span style="color:#ef4444">支 ' + fmt(exp) + '</span>');
+      if (inc > 0) foot.push('<span style="color:#10b981">收 ' + fmt(inc) + '</span>');
+      html += '<div class="day-group"><div class="day-head"><span>' + esc(day) + '</span><span>' + foot.join('　') + '</span></div>';
+      list.forEach(function (r) {
+        var cat = findCat(r);
+        var icon = cat ? cat.icon : '💰';
+        html += '<div class="record ' + r.type + '" data-id="' + esc(r.id) + '">' +
+          '<div class="r-ico">' + icon + '</div>' +
+          '<div class="r-info"><div class="r-main">' + esc(r.main) + (r.sub ? ' · ' + esc(r.sub) : '') + '</div>' +
+          '<div class="r-sub">' + (r.note ? esc(r.note) : '无备注') + '</div></div>' +
+          '<div class="r-amt">' + (r.type === 'expense' ? '-' : '+') + fmt(r.amount) + '</div>' +
+          '<button type="button" class="r-del" data-del="' + esc(r.id) + '">✕</button>' +
+          '</div>';
+      });
+      html += '</div>';
+    });
+    box.innerHTML = html;
+  }
+
+  function startEdit(id) {
+    var r = null;
+    for (var i = 0; i < records.length; i++) { if (records[i].id === id) { r = records[i]; break; } }
+    if (!r) return;
+    state.editingId = id;
+    state.type = r.type;
+    state.date = r.date;
+    state.main = r.main;
+    state.sub = r.sub || '';
+    $('#f-amount').value = r.amount;
+    $('#f-note').value = r.note || '';
+    switchView('add');
+  }
+
+  function deleteRecord(id) {
+    if (!confirm('确定删除这笔记录吗？')) return;
+    records = records.filter(function (r) { return r.id !== id; });
+    save();
+    api('DELETE', '/api/records/' + encodeURIComponent(id)).catch(function () {});
+    updateHeader();
+    renderList();
+    toast('已删除');
+  }
+
+  // ---------- stats ----------
+  function rangeStart() {
+    var t = new Date();
+    if (state.range === 'today') return todayStr();
+    if (state.range === 'week') {
+      var d = new Date();
+      d.setDate(t.getDate() - 6);
+      return dateStr(d);
+    }
+    if (state.range === 'month') return t.getFullYear() + '-' + pad(t.getMonth() + 1) + '-01';
+    return '0000-00-00';
+  }
+
+  function inRange(d) { return d >= rangeStart() && d <= todayStr(); }
+
+  function buildBarGroups(list) {
+    var byDay = {};
+    list.forEach(function (r) { byDay[r.date] = round2((byDay[r.date] || 0) + r.amount); });
+    var days = Object.keys(byDay).sort();
+    if (!days.length) return [];
+    if (days.length <= 35) {
+      return days.map(function (d) { return { label: d.slice(5), value: byDay[d] }; });
+    }
+    var byMonth = {};
+    days.forEach(function (d) { var k = d.slice(0, 7); byMonth[k] = round2((byMonth[k] || 0) + byDay[d]); });
+    return Object.keys(byMonth).sort().map(function (k) { return { label: k.slice(5) + '月', value: byMonth[k] }; });
+  }
+
+  function renderStats() {
+    setSeg('#seg-stat', state.statType === 'income' ? 1 : 0);
+    var chips = document.querySelectorAll('#range-chips .chip');
+    for (var i = 0; i < chips.length; i++) { chips[i].classList.toggle('active', chips[i].dataset.range === state.range); }
+
+    var typeCats = CATS[state.statType];
+    var list = records.filter(function (r) { return r.type === state.statType && inRange(r.date); });
+
+    var drilled = null;
+    if (state.statsMain) {
+      for (var d = 0; d < typeCats.length; d++) {
+        if (typeCats[d].main === state.statsMain) { drilled = typeCats[d]; break; }
+      }
+      if (drilled) list = list.filter(function (r) { return r.main === state.statsMain; });
+    }
+
+    var total = round2(list.reduce(function (s, r) { return s + r.amount; }, 0));
+    var label = TYPE_LABEL[state.statType] + ' · ' + RANGE_LABEL[state.range];
+    if (drilled) label = drilled.main + ' · ' + RANGE_LABEL[state.range];
+    $('#stat-label').textContent = label;
+    $('#stat-total').textContent = fmt(total);
+    $('#stat-emoji').textContent = state.statType === 'expense' ? '📉' : '📈';
+
+    var backEl = $('#stat-back');
+    if (drilled) {
+      backEl.style.display = '';
+      $('#stat-title').textContent = drilled.main + ' · 小类统计';
+      $('#pie-title').textContent = drilled.main + ' · 小类占比';
+      $('#bar-title').textContent = drilled.main + ' · 每日金额';
+    } else {
+      backEl.style.display = 'none';
+      $('#pie-title').textContent = '分类占比';
+      $('#bar-title').textContent = '每日金额';
+    }
+
+    var byCat = {};
+    list.forEach(function (r) {
+      var key = drilled ? (r.sub || r.main) : r.main;
+      byCat[key] = round2((byCat[key] || 0) + r.amount);
+    });
+    var catGroups = Object.keys(byCat).map(function (m) {
+      var icon = drilled ? drilled.icon : '💰';
+      for (var k = 0; k < typeCats.length; k++) { if (typeCats[k].main === m) { icon = typeCats[k].icon; break; } }
+      return { name: m, icon: icon, value: byCat[m], main: m };
+    }).sort(function (a, b) { return b.value - a.value; });
+
+    drawPie(catGroups, total);
+    $('#pie-legend').innerHTML = catGroups.length
+      ? catGroups.map(function (g, i) {
+          var pct = total > 0 ? (g.value / total * 100).toFixed(1) + '%' : '0%';
+          var drill = '';
+          var arrow = '';
+          if (!drilled) {
+            for (var c = 0; c < typeCats.length; c++) {
+              if (typeCats[c].main === g.main && typeCats[c].subs.length) {
+                drill = ' data-drill="' + esc(g.main) + '"';
+                arrow = '<span class="lg-arrow">›</span>';
+                break;
+              }
+            }
+          }
+          return '<div class="lg-row"' + drill + '><span class="lg-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span>' +
+            '<span class="lg-name">' + g.icon + ' ' + esc(g.name) + '</span>' +
+            '<span class="lg-val">' + fmt(g.value) + '</span>' +
+            '<span class="lg-pct">' + pct + '</span>' + arrow + '</div>';
+        }).join('')
+      : '<div class="empty" style="padding:14px 0 4px">暂无数据</div>';
+
+    var hasSubs = false;
+    if (!drilled) {
+      for (var s = 0; s < typeCats.length; s++) { if (typeCats[s].subs.length) { hasSubs = true; break; } }
+    }
+    var drillHint = $('#drill-hint');
+    drillHint.style.display = (!drilled && hasSubs) ? 'block' : 'none';
+    drillHint.textContent = '点击带小类的大类可查看小类统计';
+
+    var drilledIdx = drilled ? typeCats.indexOf(drilled) : -1;
+    drawBars(buildBarGroups(list), drilled && drilledIdx >= 0 ? PALETTE[drilledIdx % PALETTE.length] : null);
+  }
+
+  function prepCanvas(cv) {
+    var dpr = window.devicePixelRatio || 1;
+    var w = cv.clientWidth || 320;
+    var h = cv.clientHeight || 220;
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    var ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    return { ctx: ctx, w: w, h: h };
+  }
+
+  function drawEmpty(ctx, w, h, text) {
+    ctx.fillStyle = '#b6bcc6';
+    ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, w / 2, h / 2);
+  }
+
+  function drawPie(groups, total) {
+    var cv = $('#pie-canvas');
+    var p = prepCanvas(cv);
+    var ctx = p.ctx, w = p.w, h = p.h;
+    if (!groups.length) { drawEmpty(ctx, w, h, '暂无数据'); return; }
+    var cx = w / 2, cy = h / 2;
+    var r = Math.min(w, h) / 2 - 14;
+    var start = -Math.PI / 2;
+    groups.forEach(function (g, i) {
+      var angle = total > 0 ? (g.value / total) * Math.PI * 2 : 0;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, start + angle);
+      ctx.closePath();
+      ctx.fillStyle = PALETTE[i % PALETTE.length];
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      start += angle;
+    });
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.62, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.fillStyle = '#374151';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('合计', cx, cy - 11);
+    ctx.fillText(fmt(total), cx, cy + 12);
+  }
+
+  function drawBars(groups, color) {
+    var cv = $('#bar-canvas');
+    var wrap = $('#bar-scroll');
+    var containerW = wrap.clientWidth || 320;
+    var needW = groups.length ? Math.max(containerW, groups.length * 46) : containerW;
+    cv.style.width = needW + 'px';
+    var p = prepCanvas(cv);
+    var ctx = p.ctx, w = p.w, h = p.h;
+    var hint = $('#bar-hint');
+    hint.style.display = (groups.length && needW > containerW + 4) ? 'block' : 'none';
+    if (!groups.length) { drawEmpty(ctx, w, h, '暂无数据'); return; }
+    var padL = 8, padR = 8, padT = 20, padB = 24;
+    var plotW = w - padL - padR;
+    var plotH = h - padT - padB;
+    var max = 1;
+    groups.forEach(function (g) { if (g.value > max) max = g.value; });
+    var n = groups.length;
+    var step = plotW / n;
+    var bw = Math.min(step * 0.62, 40);
+
+    ctx.strokeStyle = '#f0f1f5';
+    ctx.lineWidth = 1;
+    for (var g = 1; g <= 4; g++) {
+      var gy = h - padB - (plotH * g) / 4;
+      ctx.beginPath();
+      ctx.moveTo(padL, gy);
+      ctx.lineTo(w - padR, gy);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#dde0e6';
+    ctx.beginPath();
+    ctx.moveTo(padL, h - padB);
+    ctx.lineTo(w - padR, h - padB);
+    ctx.stroke();
+
+    groups.forEach(function (gr, i) {
+      var bh = Math.max((gr.value / max) * plotH, 2);
+      var x = padL + step * i + (step - bw) / 2;
+      var y = h - padB - bh;
+      var rr = Math.min(4, bw / 2, bh / 2);
+      ctx.fillStyle = color || '#3b82f6';
+      ctx.beginPath();
+      ctx.moveTo(x, h - padB);
+      ctx.lineTo(x, y + rr);
+      ctx.quadraticCurveTo(x, y, x + rr, y);
+      ctx.lineTo(x + bw - rr, y);
+      ctx.quadraticCurveTo(x + bw, y, x + bw, y + rr);
+      ctx.lineTo(x + bw, h - padB);
+      ctx.closePath();
+      ctx.fill();
+      // 每根柱子都显示金额，即使金额很低
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillText(fmt(gr.value), x + bw / 2, y - 4);
+      var showEvery = Math.ceil(n / 7);
+      if (i % showEvery === 0 || i === n - 1) {
+        ctx.fillStyle = '#9ca3af';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'alphabetic';
+        ctx.fillText(gr.label, x + bw / 2, h - padB + 13);
+      }
+    });
+  }
+
+  // ---------- AI 对话 ----------
+  var chatBusy = false;
+  var chatHistory = [];
+  var chatAutoScroll = true;
+
+  function scrollChat() {
+    var box = $('#chat-box');
+    if (chatAutoScroll) box.scrollTop = box.scrollHeight;
+  }
+
+  function addBubble(who, text, cls) {
+    var wrap = document.createElement('div');
+    wrap.className = 'msg ' + who;
+    var bubble = document.createElement('div');
+    bubble.className = 'bubble' + (cls ? ' ' + cls : '');
+    if (text) bubble.textContent = text;
+    wrap.appendChild(bubble);
+    $('#chat-box').appendChild(wrap);
+    scrollChat();
+    return bubble;
+  }
+
+  function addToolChip(tool) {
+    var el = document.createElement('div');
+    el.className = 'tool-chip';
+    el.innerHTML = '<span class="dot"></span><span class="txt"></span>';
+    el.querySelector('.txt').textContent = '正在调用 ' + tool + ' …';
+    $('#chat-box').appendChild(el);
+    scrollChat();
+    return el;
+  }
+
+  function readSSE(res, onEvent) {
+    var reader = res.body.getReader();
+    var decoder = new TextDecoder('utf-8');
+    var rest = '';
+    function pump() {
+      return reader.read().then(function (r) {
+        if (r.done) return;
+        rest += decoder.decode(r.value, { stream: true });
+        var parts = rest.split('\n\n');
+        rest = parts.pop();
+        parts.forEach(function (part) {
+          part.split('\n').forEach(function (line) {
+            if (line.indexOf('data:') !== 0) return;
+            var raw = line.slice(5).trim();
+            if (raw) { try { onEvent(JSON.parse(raw)); } catch (e) {} }
+          });
+        });
+        return pump();
+      });
+    }
+    return pump();
+  }
+
+  function sendChat(text) {
+    text = String(text || '').trim();
+    if (!text || chatBusy) return;
+    chatBusy = true;
+    $('#chat-send').disabled = true;
+    $('#chat-text').value = '';
+    chatAutoScroll = true;
+
+    addBubble('user', text);
+    var bubble = addBubble('ai', '');
+    bubble.innerHTML = '<span class="typing"><span></span><span></span><span></span></span>';
+    var buf = '';
+    var lastChip = null;
+
+    function finish() {
+      chatBusy = false;
+      $('#chat-send').disabled = false;
+      $('#chat-text').focus();
+      scrollChat();
+    }
+
+    function onEvent(ev) {
+      if (ev.type === 'text') {
+        buf += ev.delta;
+        bubble.textContent = buf;
+        scrollChat();
+      } else if (ev.type === 'tool_start') {
+        lastChip = addToolChip(ev.tool);
+      } else if (ev.type === 'tool_done') {
+        var chip = lastChip || addToolChip(ev.tool);
+        chip.className = 'tool-chip done';
+        chip.querySelector('.txt').textContent = ev.summary || (ev.tool + ' 完成');
+        lastChip = null;
+      } else if (ev.type === 'records_changed') {
+        refreshRecords();
+      } else if (ev.type === 'done') {
+        backendOk();
+        if (!buf && ev.reply) buf = ev.reply;
+        bubble.textContent = buf || '（没有返回内容）';
+        chatHistory.push({ role: 'user', content: text });
+        chatHistory.push({ role: 'assistant', content: buf || '' });
+        if (chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+      } else if (ev.type === 'error') {
+        bubble.className = 'bubble err';
+        bubble.textContent = '没能完成：' + ev.message + '\n（确认后端已启动、模型 Key 已配置）';
+      }
+    }
+
+    fetch(API_BASE + '/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, history: chatHistory })
+    }).then(function (res) {
+      if (!res.ok || !res.body) throw new Error('HTTP ' + res.status);
+      return readSSE(res, onEvent);
+    }).catch(function (err) {
+      bubble.className = 'bubble err';
+      bubble.textContent = '连接不上后端：' + err.message + '\n请先运行 .\\condaenv1\\python.exe -m app.main';
+    }).then(finish, finish);
+  }
+
+  // ---------- backup ----------
+  function exportData() {
+    var payload = { version: 1, exportedAt: new Date().toISOString(), records: records };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = '轻记账备份-' + todayStr() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+    toast('已导出 ' + records.length + ' 条记录');
+  }
+
+  function importData(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        var arr = Array.isArray(data) ? data : (data && Array.isArray(data.records) ? data.records : null);
+        if (!arr) throw new Error('bad');
+        var valid = arr.filter(function (r) {
+          return r && r.id && (r.type === 'expense' || r.type === 'income') &&
+            r.date && r.main && isFinite(Number(r.amount));
+        });
+        if (!confirm('将用备份中的 ' + valid.length + ' 条记录替换当前 ' + records.length + ' 条，确定吗？')) return;
+        records = valid.map(function (r) {
+          return {
+            id: String(r.id),
+            type: r.type,
+            date: String(r.date),
+            main: String(r.main),
+            sub: r.sub ? String(r.sub) : '',
+            amount: round2(Number(r.amount)),
+            note: r.note ? String(r.note) : '',
+            ts: r.ts || Date.now()
+          };
+        });
+        saveLocal();
+        pushAll(true);
+        updateHeader();
+        renderList();
+        renderStats();
+        toast('导入成功，共 ' + records.length + ' 条');
+      } catch (e) {
+        toast('文件格式不正确');
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // ---------- events ----------
+  $('#seg-type').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || b.dataset.type === state.type) return;
+    state.type = b.dataset.type;
+    state.main = '';
+    state.sub = '';
+    renderAdd();
+  });
+
+  $('#cat-main').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    var main = b.dataset.main;
+    var cat = null;
+    for (var i = 0; i < CATS[state.type].length; i++) { if (CATS[state.type][i].main === main) cat = CATS[state.type][i]; }
+    state.main = main;
+    state.sub = cat && cat.subs.length ? '' : '';
+    renderCats();
+    updatePreview();
+  });
+
+  $('#cat-sub').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b) return;
+    state.sub = b.dataset.sub;
+    renderCats();
+    updatePreview();
+  });
+
+  $('#btn-save').addEventListener('click', saveRecord);
+  $('#btn-cancel-edit').addEventListener('click', cancelEdit);
+  $('#f-amount').addEventListener('keydown', function (e) { if (e.key === 'Enter') saveRecord(); });
+  $('#f-note').addEventListener('keydown', function (e) { if (e.key === 'Enter') saveRecord(); });
+
+  $('#list-box').addEventListener('click', function (e) {
+    var delBtn = e.target.closest('.r-del');
+    if (delBtn) { deleteRecord(delBtn.dataset.del); return; }
+    var row = e.target.closest('.record');
+    if (row) startEdit(row.dataset.id);
+  });
+
+  $('#seg-stat').addEventListener('click', function (e) {
+    var b = e.target.closest('button');
+    if (!b || b.dataset.type === state.statType) return;
+    state.statType = b.dataset.type;
+    state.statsMain = null;
+    renderStats();
+  });
+
+  $('#range-chips').addEventListener('click', function (e) {
+    var b = e.target.closest('.chip');
+    if (!b || b.dataset.range === state.range) return;
+    state.range = b.dataset.range;
+    renderStats();
+  });
+
+  $('#pie-legend').addEventListener('click', function (e) {
+    var row = e.target.closest('.lg-row');
+    if (!row || state.statsMain) return;
+    var main = row.dataset.drill;
+    if (!main) return;
+    state.statsMain = main;
+    renderStats();
+  });
+
+  $('#btn-stat-back').addEventListener('click', function () {
+    state.statsMain = null;
+    renderStats();
+  });
+
+  $('#tabbar').addEventListener('click', function (e) {
+    var tab = e.target.closest('.tab');
+    if (tab) switchView(tab.dataset.view);
+  });
+
+  $('#btn-export').addEventListener('click', exportData);
+  $('#btn-import').addEventListener('click', function () { $('#file-import').click(); });
+  $('#file-import').addEventListener('change', function (e) {
+    if (e.target.files && e.target.files[0]) importData(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  $('#chat-send').addEventListener('click', function () { sendChat($('#chat-text').value); });
+  $('#chat-text').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); sendChat($('#chat-text').value); }
+  });
+  $('#chat-hints').addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (chip) sendChat(chip.dataset.say);
+  });
+  $('#chat-box').addEventListener('scroll', function () {
+    var box = $('#chat-box');
+    chatAutoScroll = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  });
+
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { if (state.view === 'stats') renderStats(); }, 200);
+  });
+
+  if (typeof navigator !== 'undefined' && navigator.serviceWorker && /^https?:/.test(location.protocol)) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+
+  updateHeader();
+  switchView('add');
+  syncOnBoot();
+})();
+</script>
+</body>
+</html>
