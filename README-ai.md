@@ -108,3 +108,9 @@ Agent 的提示词按最新的分类表生成，所以你**只改前端 CATS 就
 - **直接双击 index.html**：能用旧功能，AI 会连 `http://127.0.0.1:8000`，需要后端在跑（有 CORS 放行）。
 - **原来的本地数据**：第一次启动会把浏览器 localStorage 里的旧记录整表灌进数据库，之后以数据库为准。
 - **换模型**：只改 `.env` 三行，代码不用动。
+## 界面运行演示：
+
+
+https://github.com/user-attachments/assets/23af89f8-b435-497f-bda6-25b79bc92f2c
+
+
